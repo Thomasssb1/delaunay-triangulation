@@ -1,33 +1,42 @@
 local node = require 'node'
 local polygon = {}
 
-function polygon.new(points)
+function polygon.new(nodes)
     local self = setmetatable({}, {__index = polygon})
-    self.points = points
+    self.nodes = {}
+    for _, v in ipairs(nodes) do
+        local newNode = node.new(v.x, v.y, self)
+        table.insert(self.nodes, newNode)
+    end
     self.dx, self.dy = self:GetMaxPoints()
     -- radius of the circle
     self.max = self.dx >= self.dy and 1.5 * self.dx or 1.5 * self.dy
     return self
 end
 
-function polygon:PointToSurfacePoint(point)
-    return point.x + self.max - self.dx/2, (2* self.max) -  (point.y + self.max - self.dy / 2)
+function polygon:addNodeConnections(cr, initialNodes)
+    local nodesToAdd = initialNodes
+    for _, v in pairs(self.nodes) do
+      v:connectNodes(nodesToAdd)
+      v:drawConnected(cr)
+      table.insert(nodesToAdd, v)
+    end
 end
 
-function polygon:GetPointCount()
-    return #self.points
+function polygon:GetNodeCount()
+    return #self.nodes
 end
 
 function polygon:DrawPoint(cr, index)
-    local point = self.points[index]
-    local x, y = self:PointToSurfacePoint(point)
+    local point = self.nodes[index]
+    local x, y = point:PointToSurfacePoint()
     cr:arc(x , y, 2, 0, 2 * math.pi)
 end
 
 function polygon:DrawAllPoints(cr)
     cr:new_sub_path()
     cr:set_source_rgb(0, 0, 0)
-    for i = 1, self:GetPointCount() do
+    for i = 1, self:GetNodeCount() do
         self:DrawPoint(cr, i)
     end
     cr:close_path()
@@ -38,7 +47,7 @@ function polygon:GetMaxPoints()
     local minX, maxX = math.huge, -math.huge
     local minY, maxY = math.huge, -math.huge
 
-    for i, v in ipairs(self.points) do
+    for _, v in ipairs(self.nodes) do
         if v.x < minX then
             minX = v.x
         end
@@ -63,15 +72,13 @@ end
 
 function polygon:CalculateSuperTriangle()
     return {
-        node.new(-self.max + self.dx/2, self.minY),
-        node.new(self.max + self.dx/2, self.minY),
-        node.new(self.dx/2, self.max)
+        node.new(-self.max + self.dx/2, self.minY, self),
+        node.new(self.max + self.dx/2, self.minY, self),
+        node.new(self.dx/2, self.max, self)
     }
 end
 
-function polygon:DrawSuperTriangle(cr)
-    local superTriangle = self:CalculateSuperTriangle()
-    print(superTriangle)
+function polygon:DrawSuperTriangle(cr, superTriangle)
     local yOffset = self.max - self.dy/2
 
     cr:set_source_rgb(0, 0, 0)
@@ -80,9 +87,9 @@ function polygon:DrawSuperTriangle(cr)
     
     cr:new_sub_path()
     cr:set_source_rgb(1, 0, 0)
-    cr:move_to(self:PointToSurfacePoint(superTriangle[1]))
-    cr:line_to(self:PointToSurfacePoint(superTriangle[2]))
-    cr:line_to(self:PointToSurfacePoint(superTriangle[3]))
+    cr:move_to(superTriangle[1]:PointToSurfacePoint())
+    cr:line_to(superTriangle[2]:PointToSurfacePoint())
+    cr:line_to(superTriangle[3]:PointToSurfacePoint())
     cr:close_path()
     cr:stroke()
 end

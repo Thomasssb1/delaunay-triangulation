@@ -9,9 +9,12 @@ local function draw(myPolygon)
 
     cr:set_source_rgb(0.5, 1, 1)
     myPolygon:DrawAllPoints(cr)
-    myPolygon:DrawSuperTriangle(cr)    
+    local superTriangle = myPolygon:CalculateSuperTriangle()
+    myPolygon:DrawSuperTriangle(cr, superTriangle)    
+
+    myPolygon:addNodeConnections(cr, superTriangle)
+
     local err = img:write_to_png("polygon.png")
-    print(err)
 end
 
 local myPolygon = polygon.new({
@@ -20,5 +23,4 @@ local myPolygon = polygon.new({
     {x = 100, y = 100},
     {x = 100, y = 0}
 })
-print(myPolygon)
 draw(myPolygon)
