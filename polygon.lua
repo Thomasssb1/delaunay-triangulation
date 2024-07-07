@@ -14,6 +14,13 @@ function polygon.new(nodes)
     return self
 end
 
+function polygon:DrawCircumcircle(cr, circumcircle)
+    local node = node.new(circumcircle.x, circumcircle.y, self)
+    local x,y = node:PointToSurfacePoint()
+    cr:arc(x, y, circumcircle.radius, 0, 2 * math.pi)
+    cr:stroke()
+end
+
 function polygon:addNodeConnections(cr, initialNodes)
     local nodesToAdd = initialNodes
     for _, v in pairs(self.nodes) do
