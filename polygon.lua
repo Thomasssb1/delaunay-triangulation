@@ -31,26 +31,40 @@ function polygon:Triangulate(superTriangle)
 
     for _, v in ipairs(vertices) do
         local edgeBuffer = {}
-        for j, w in pairs(self.triangles) do
-            print(w)
-            local circle = circumcircle.fromTriangle(w)
+        local badTriangles = {}
+        for i = #self.triangles, 1, - 1 do
+            local tri = self.triangles[i]
+            local circle = circumcircle.fromTriangle(tri)
 
             if circle:ContainsNode(v) then
-                print("true")
-                w:AddEdges(edgeBuffer)
-                table.remove(self.triangles, j)
+                table.insert(badTriangles, i)
             end
         end
-        for i, edge in ipairs(edgeBuffer) do
-            for _, w in ipairs(edgeBuffer) do
-                if edge == w then goto continue end
-                if edge:CompareTo(w) then
-                    table.remove(edgeBuffer, i)
-                    break
+
+        for _, i1 in ipairs(badTriangles) do
+            local tri1 = self.triangles[i1]
+            local edges1 = tri1:GetEdges()
+            for j1 = 1, 3 do
+                for _, i2 in ipairs(badTriangles) do
+                    if i1 == i2 then goto continue end
+                    local tri2 = self.triangles[i2]
+                    local edges2 = tri2:GetEdges()
+                    for j2 = 1, 3 do
+                        if edges1[j1]:CompareTo(edges2[j2]) then
+                            goto ignore
+                        end
+                    end
+                    ::continue::
                 end
-                ::continue::
+                table.insert(edgeBuffer, edges1[j1])
+                ::ignore::
             end
         end
+
+        for _, tri in pairs(badTriangles) do
+            table.remove(self.triangles, tri)
+        end
+
         for _, edge in ipairs(edgeBuffer) do
             local newTriangle = triangle.new(edge.node1, edge.node2, v)
             table.insert(self.triangles, newTriangle)
@@ -66,6 +80,7 @@ function polygon:Triangulate(superTriangle)
             end
         end
     end
+    print(#self.triangles)
 end
 
 

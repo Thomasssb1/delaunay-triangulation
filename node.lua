@@ -11,8 +11,4 @@ function node:CompareTo(other)
     return self.x == other.x and self.y == other.y
 end
 
-function node.__tostring(self)
-    return "("..self.x..", "..self.y..")"
-end
-
 return node

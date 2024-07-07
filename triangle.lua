@@ -10,9 +10,9 @@ function triangle.new(node1, node2, node3)
     self.node2 = node.new(node2.x, node2.y)
     self.node3 = node.new(node3.x, node3.y)
     
-    self.edge1 = edge.new(node1, node2)
-    self.edge2 = edge.new(node2, node3)
-    self.edge3 = edge.new(node3, node1)
+    self.edge1 = edge.new(self.node1, self.node2)
+    self.edge2 = edge.new(self.node2, self.node3)
+    self.edge3 = edge.new(self.node3, self.node1)
     return self
 end
 
@@ -25,10 +25,7 @@ function triangle:GetEdges()
 end
 
 function triangle:AddEdges(edgeBuffer)
-    local edges = self:GetEdges()
-    for i = 1, 3 do
-        table.insert(edgeBuffer, edges[i])
-    end
+    
 end
 
 function triangle:SharesNode(node)

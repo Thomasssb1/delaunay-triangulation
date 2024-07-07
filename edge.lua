@@ -10,10 +10,10 @@ end
 function edge:CompareTo(otherEdge)
     local node1, node2 = self.node1, self.node2
     local otherNode1, otherNode2 = otherEdge.node1, otherEdge.node2
-    if (node1 == otherNode1 and node2 == otherNode2) or (node1 == otherNode2 and node2 == otherNode1) then
-        return true
-    end
-    return false
+    return (node1:CompareTo(otherNode1) and node2:CompareTo(otherNode2)) or (node1:CompareTo(otherNode2) and node2:CompareTo(otherNode1))
+end
+
+function edge:Intersects(otherEdge)
 end
 
 function edge:__tostring()

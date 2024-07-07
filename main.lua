@@ -29,7 +29,10 @@ end
 local myPolygon = polygon.new({
     {x = 0, y = 0},
     {x = 0, y = 100},
+    {x = 30, y = 45},
+    {x = 50, y = 65},
     {x = 100, y = 100},
     {x = 100, y = 0},
+    
 })
 draw(myPolygon)
